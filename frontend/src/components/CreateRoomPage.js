@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Link} from 'react-router-dom';
+import {Link} from 'react-router-dom';;
 import {Button, Grid,Typography,TextField,FormHelperText,FormControl,Radio,RadioGroup,FormControlLabel} from "@material-ui/core/";
 
 class CreateRoomPage extends React.Component {
@@ -28,7 +28,7 @@ class CreateRoomPage extends React.Component {
           };
           fetch("/api/create-room", requestOptions)
             .then((response) => response.json())
-            .then((data) => console.log(data));
+            .then((data) =>{history.pushState('room/'+data.code)});
     }
 
 
