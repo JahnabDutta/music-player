@@ -34,7 +34,7 @@ function Homepage() {
   const [roomCode, setRoomCode] = useState('')
   useEffect(() =>{
     async function fetchApi(){
-      fetch('api/user-in-room')
+      fetch('/api/user-in-room')
       .then((response) =>response.json())
       .then((data) =>{
         setRoomCode(data.code);
