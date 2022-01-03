@@ -3,26 +3,45 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button, Typography } from "@material-ui/core";
 import CreateRoomPage from "./CreateRoomPage";
 
-const Room=()=>{
+const Room = () => {
   const [votesToSkip, setVotes] = useState(0);
   const [guestCanPause, setGuest] = useState(false);
   const [isHost, setHost] = useState(false);
   const { roomCode } = useParams();
   const [settings, setShowSettings] = useState(false);
   const nav = useNavigate();
-
+  const [spotifyAuth, setSpotifyAuth] = useState(false);
   useEffect(() => {
-      fetch("/api/get-room" + "?code=" + roomCode)
-        .then((response) => response.json())
-        .then((data) => {
-          setVotes(data.votes_to_skip);
-          setGuest(data.guest_can_pause);
-          setHost(data.is_host);
-        });
-    });
-    
+    fetch("/api/get-room" + "?code=" + roomCode)
+      .then((response) => response.json())
+      .then((data) => {
+        setVotes(data.votes_to_skip);
+        setGuest(data.guest_can_pause);
+        setHost(data.is_host);
+      });
+    if (isHost) {
+      authenticateSpofify();
+    }
+  });
+
   function leaveButtonPressed() {
     nav("/");
+  }
+
+  function authenticateSpofify() {
+    fetch("/spotify/is-authenticated")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setSpotifyAuth(data.status);
+        if (!data.status) {
+          fetch("/spotify/get-auth-url")
+            .then((response) => response.json())
+            .then((data) => {
+              window.location.replace(data.url);
+            });
+        }
+      });
   }
 
   function updateShowSettings(value) {
@@ -105,6 +124,6 @@ const Room=()=>{
       </Grid>
     );
   }
-}
+};
 
 export default Room;
