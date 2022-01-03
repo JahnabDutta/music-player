@@ -1,7 +1,8 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { Component, useState, useEffect,useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button, Typography } from "@material-ui/core";
 import CreateRoomPage from "./CreateRoomPage";
+import MusicPlayer from "./musicplayer";
 
 const Room = () => {
   const [votesToSkip, setVotes] = useState(0);
@@ -11,7 +12,8 @@ const Room = () => {
   const [settings, setShowSettings] = useState(false);
   const nav = useNavigate();
   const [spotifyAuth, setSpotifyAuth] = useState(false);
-  useEffect(() => {
+  const [currentSong,setCurrentSong]  = useState({});
+  function getRoomDetails() {
     fetch("/api/get-room" + "?code=" + roomCode)
       .then((response) => response.json())
       .then((data) => {
@@ -22,7 +24,8 @@ const Room = () => {
     if (isHost) {
       authenticateSpofify();
     }
-  });
+  };
+  getRoomDetails();
 
   function leaveButtonPressed() {
     nav("/");
@@ -42,6 +45,26 @@ const Room = () => {
             });
         }
       });
+  }
+  useEffect(() =>{
+    const interval = setInterval(getCurrentSong,1000);
+
+    return ()=>{
+      clearInterval(interval);
+    }
+  },[]);
+  function getCurrentSong() {
+    fetch("/spotify/current-song")
+      .then((response) => {
+        if (!response.ok) {
+          return {};
+        } else {
+          return response.json();
+        }
+      }).then((data)=>{
+        setCurrentSong(data);
+        console.log(data.image_url);
+      })
   }
 
   function updateShowSettings(value) {
@@ -112,6 +135,7 @@ const Room = () => {
           </Typography>
         </Grid>
         <Grid item xs={12} align="center">
+          <MusicPlayer {...currentSong}/>
           {isHost ? <RenderSettingsButton></RenderSettingsButton> : null}
           <Button
             variant="contained"
