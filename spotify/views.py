@@ -10,6 +10,8 @@ from api.models import Room
 from .util import skip_song
 from .models import Vote
 
+
+room_code_test = None
 class AuthURL(APIView):
     def get(self, request, fornat=None):
         scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing'
@@ -48,7 +50,13 @@ def spotify_callback(request, format=None):
     update_or_create_user_tokens(
         request.session.session_key, access_token, token_type, expires_in, refresh_token)
 
-    return redirect('frontend:')
+    
+    if room_code_test:
+        url = "http://127.0.0.1:8000/room/" + room_code_test
+    else:
+        url = "frontend:"
+
+    return redirect(url)
 
 
 class IsAuthenticated(APIView):
@@ -56,6 +64,14 @@ class IsAuthenticated(APIView):
         is_authenticated = is_spotify_authenticated(
             self.request.session.session_key)
         return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
+
+class GetRoom(APIView):
+    def post(self,request,format=None):
+        code_test = request.data.get('code_test')
+        print("hello",code_test)
+        global room_code_test
+        room_code_test = code_test
+        return Response({},status=status.HTTP_204_NO_CONTENT)
 
 
 class CurrentSong(APIView):

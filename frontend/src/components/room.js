@@ -23,6 +23,7 @@ const Room = () => {
       });
     if (isHost) {
       authenticateSpofify();
+      postRoomCode();
     }
   }
   getRoomDetails();
@@ -35,7 +36,6 @@ const Room = () => {
     fetch("/spotify/is-authenticated")
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setSpotifyAuth(data.status);
         if (!data.status) {
           fetch("/spotify/get-auth-url")
@@ -46,7 +46,16 @@ const Room = () => {
         }
       });
   }
-
+  function postRoomCode(){
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code_test: roomCode
+      }),
+    };
+    fetch('/spotify/room-code',requestOptions);
+  }
   useEffect(() => {
     const interval = setInterval(getCurrentSong, 1000);
     if(settings){
